@@ -1,0 +1,37 @@
+4.2 Add ec2-user to Docker Group
+sudo usermod -aG docker ec2-user
+Log out & log back in so group membership applies.
+Verify:
+groups
+You should see docker included.
+4.3 Create Mosquitto Config & Data Directories
+mkdir -p ~/mosquitto/config
+mkdir -p ~/mosquitto/data
+mkdir -p ~/mosquitto/log
+4.4 Create Basic Mosquitto Config
+nano ~/mosquitto/config/mosquitto.conf
+Paste:
+listener 1883
+allow_anonymous true
+persistence true
+persistence_location /mosquitto/data/
+log_dest file /mosquitto/log/mosquitto.log
+Save.
+4.5 Run Mosquitto Broker Using Docker
+Use the exact working command you already executed:
+docker run -d \
+  --name mosquitto \
+  -p 1883:1883 \
+  -v ~/mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf \
+  -v ~/mosquitto/data:/mosquitto/data \
+  -v ~/mosquitto/log:/mosquitto/log \
+  eclipse-mosquitto
+Check the container:
+docker ps
+Inspect logs:
+docker logs mosquitto
+
+4.6 Verify Mosquitto is Listening
+sudo ss -lntp | grep 1883
+Expected:
+LISTEN 0 128 0.0.0.0:1883 ...
